@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CARTEL INVOICE MAKER</title>
+  <meta name="description" content="Create professional invoices in seconds with Cartel Invoice Maker." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    :root {
+      --bg: #0a0a0b;
+      --surface: #121214;
+      --surface-2: #1a1a1e;
+      --border: #2a2a30;
+      --border-hover: #3a3a42;
+      --text: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --accent: #e11d48;
+      --accent-hover: #be123c;
+      --accent-soft: rgba(225, 29, 72, 0.15);
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --radius: 12px;
+      --shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      background: linear-gradient(180deg, #16161a 0%, var(--bg) 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+
+    .header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .logo-mark {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, var(--accent), #9f1239);
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: -0.5px;
+      box-shadow: 0 4px 16px rgba(225, 29, 72, 0.35);
+    }
+
+    .logo-text {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1.25rem;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-text span { color: var(--accent); }
+
+    .header-actions {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.6rem 1.1rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(225, 29, 72, 0.4);
+    }
+
+    .btn-secondary {
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover {
+      background: var(--border);
+      border-color: var(--border-hover);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid transparent;
+    }
+    .btn-ghost:hover {
+      color: var(--text);
+      background: var(--surface-2);
+    }
+
+    .btn-icon {
+      padding: 0.5rem;
+      border-radius: 8px;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    /* ===== LAYOUT ===== */
+    .main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    @media (max-width: 1024px) {
+      .main { grid-template-columns: 1fr; }
+      .sidebar { order: -1; }
+    }
+
+    /* ===== CARDS ===== */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text);
+    }
+
+    .card-title .icon {
+      width: 28px;
+      height: 28px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-radius: 7px;
+      display: grid;
+      place-items: center;
+      font-size: 0.85rem;
+    }
+
+    /* ===== FORM ===== */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+    }
+
+    @media (max-width: 640px) {
+      .form-grid { grid-template-columns: 1fr; }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .form-group.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    input, select, textarea {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      color: var(--text);
+      font-size: 0.9rem;
+      font-family: inherit;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      width: 100%;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    textarea { resize: vertical; min-height: 70px; }
+
+    /* ===== ITEMS TABLE ===== */
+    .items-table-wrap {
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 600px;
+    }
+
+    .items-table th {
+      background: var(--surface-2);
+      padding: 0.7rem 0.85rem;
+      text-align: left;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .items-table td {
+      padding: 0.5rem 0.6rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .items-table tr:last-child td { border-bottom: none; }
+
+    .items-table input {
+      padding: 0.5rem 0.6rem;
+      font-size: 0.85rem;
+    }
+
+    .items-table .col-desc { width: 40%; }
+    .items-table .col-qty { width: 12%; }
+    .items-table .col-rate { width: 18%; }
+    .items-table .col-amount { width: 18%; }
+    .items-table .col-action { width: 12%; text-align: center; }
+
+    .amount-cell {
+      font-weight: 600;
+      color: var(--text);
+      padding-left: 0.85rem !important;
+    }
+
+    .btn-remove {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0.4rem;
+      border-radius: 6px;
+      transition: all 0.15s;
+    }
+    .btn-remove:hover {
+      background: rgba(225, 29, 72, 0.15);
+      color: var(--accent);
+    }
+
+    .add-item-row {
+      margin-top: 0.85rem;
+      display: flex;
+      gap: 0.6rem;
+    }
+
+    /* ===== TOTALS ===== */
+    .totals {
+      margin-top: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.4rem;
+    }
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      width: 260px;
+      font-size: 0.9rem;
+    }
+
+    .total-row.grand {
+      margin-top: 0.5rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+      font-size: 1.15rem;
+      font-weight: 700;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .total-row.grand .value { color: var(--accent); }
+
+    .total-label { color: var(--text-muted); }
+    .total-value { font-weight: 600; }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar .card { position: sticky; top: 80px; }
+
+    .preview-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .preview-actions .btn { width: 100%; justify-content: center; }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .hint {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.75rem;
+      line-height: 1.4;
+    }
+
+    /* ===== INVOICE PREVIEW (for PDF) ===== */
+    #invoice-preview {
+      display: none;
+      background: white;
+      color: #111;
+      padding: 48px;
+      font-family: 'Inter', sans-serif;
+      width: 800px;
+    }
+
+    #invoice-preview.show {
+      display: block;
+      position: fixed;
+      left: -9999px;
+      top: 0;
+    }
+
+    .inv-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 40px;
+      padding-bottom: 24px;
+      border-bottom: 3px solid #e11d48;
+    }
+
+    .inv-brand {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: #0a0a0b;
+    }
+
+    .inv-brand span { color: #e11d48; }
+
+    .inv-meta {
+      text-align: right;
+      font-size: 13px;
+      color: #52525b;
+    }
+
+    .inv-meta strong {
+      display: block;
+      font-size: 22px;
+      color: #0a0a0b;
+      margin-bottom: 4px;
+    }
+
+    .inv-parties {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      margin-bottom: 36px;
+    }
+
+    .inv-party h4 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #71717a;
+      margin-bottom: 8px;
+    }
+
+    .inv-party p {
+      font-size: 14px;
+      line-height: 1.55;
+      color: #18181b;
+    }
+
+    .inv-party .name {
+      font-weight: 700;
+      font-size: 15px;
+      margin-bottom: 2px;
+    }
+
+    .inv-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 28px;
+    }
+
+    .inv-table th {
+      background: #f4f4f5;
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #52525b;
+      border-bottom: 1px solid #e4e4e7;
+    }
+
+    .inv-table td {
+      padding: 12px 14px;
+      font-size: 13.5px;
+      border-bottom: 1px solid #f4f4f5;
+      color: #18181b;
+    }
+
+    .inv-table .right { text-align: right; }
+    .inv-table .center { text-align: center; }
+
+    .inv-totals {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 32px;
+    }
+
+    .inv-totals-inner {
+      width: 240px;
+    }
+
+    .inv-total-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      font-size: 13.5px;
+      color: #3f3f46;
+    }
+
+    .inv-total-row.grand {
+      border-top: 2px solid #0a0a0b;
+      margin-top: 6px;
+      padding-top: 10px;
+      font-size: 18px;
+      font-weight: 700;
+      color: #0a0a0b;
+    }
+
+    .inv-notes {
+      background: #fafafa;
+      border-radius: 8px;
+      padding: 16px 18px;
+      font-size: 13px;
+      color: #3f3f46;
+      line-height: 1.5;
+    }
+
+    .inv-notes strong {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #71717a;
+      margin-bottom: 6px;
+    }
+
+    .inv-footer {
+      margin-top: 40px;
+      padding-top: 16px;
+      border-top: 1px solid #e4e4e7;
+      text-align: center;
+      font-size: 12px;
+      color: #a1a1aa;
+    }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.85rem 1.2rem;
+      border-radius: 10px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      box-shadow: var(--shadow);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast.success { border-color: var(--success); }
+    .toast.error { border-color: var(--accent); }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-items {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    /* ===== FOOTER ===== */
+    .site-footer {
+      text-align: center;
+      padding: 2rem 1.5rem;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      border-top: 1px solid var(--border);
+      margin-top: 2rem;
+    }
+
+    .site-footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="#" class="logo">
+        <div class="logo-mark">C</div>
+        <div class="logo-text">CARTEL <span>INVOICE</span> MAKER</div>
+      </a>
+      <div class="header-actions">
+        <button class="btn btn-ghost" id="btn-reset" title="Reset all fields">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          Reset
+        </button>
+        <button class="btn btn-secondary" id="btn-save">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save Draft
+        </button>
+        <button class="btn btn-primary" id="btn-download">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download PDF
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="main">
+    <!-- LEFT: FORM -->
+    <div class="form-area">
+      <!-- FROM / TO -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">①</span>
+          Business & Client Details
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Your Business Name</label>
+            <input type="text" id="from-name" placeholder="Cartel Studios LLC" value="Cartel Studios LLC" />
+          </div>
+          <div class="form-group">
+            <label>Client Name</label>
+            <input type="text" id="to-name" placeholder="Acme Corporation" />
+          </div>
+          <div class="form-group">
+            <label>Your Email</label>
+            <input type="email" id="from-email" placeholder="billing@cartel.com" value="billing@cartel.com" />
+          </div>
+          <div class="form-group">
+            <label>Client Email</label>
+            <input type="email" id="to-email" placeholder="accounts@acme.com" />
+          </div>
+          <div class="form-group full">
+            <label>Your Address</label>
+            <textarea id="from-address" placeholder="123 Market Street, Suite 400&#10;San Francisco, CA 94103">123 Market Street, Suite 400
+San Francisco, CA 94103</textarea>
+          </div>
+          <div class="form-group full">
+            <label>Client Address</label>
+            <textarea id="to-address" placeholder="456 Client Avenue&#10;New York, NY 10001"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- INVOICE META -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">②</span>
+          Invoice Information
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Invoice Number</label>
+            <input type="text" id="inv-number" value="INV-2026-001" />
+          </div>
+          <div class="form-group">
+            <label>Currency</label>
+            <select id="currency">
+              <option value="USD" selected>USD ($)</option>
+              <option value="EUR">EUR (€)</option>
+              <option value="GBP">GBP (£)</option>
+              <option value="CAD">CAD (C$)</option>
+              <option value="AUD">AUD (A$)</option>
+              <option value="INR">INR (₹)</option>
+              <option value="NGN">NGN (₦)</option>
+              <option value="ZAR">ZAR (R)</option>
+              <option value="RWF">RWF (FRw)</option>
+              <option value="UGX">UGX (USh)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Issue Date</label>
+            <input type="date" id="inv-date" />
+          </div>
+          <div class="form-group">
+            <label>Due Date</label>
+            <input type="date" id="inv-due" />
+          </div>
+          <div class="form-group">
+            <label>Tax Rate (%)</label>
+            <input type="number" id="tax-rate" value="0" min="0" max="100" step="0.01" />
+          </div>
+          <div class="form-group">
+            <label>Discount (%)</label>
+            <input type="number" id="discount" value="0" min="0" max="100" step="0.01" />
+          </div>
+        </div>
+      </div>
+
+      <!-- LINE ITEMS -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">③</span>
+          Line Items
+        </div>
+        <div class="items-table-wrap">
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th class="col-desc">Description</th>
+                <th class="col-qty">Qty</th>
+                <th class="col-rate">Rate</th>
+                <th class="col-amount">Amount</th>
+                <th class="col-action"></th>
+              </tr>
+            </thead>
+            <tbody id="items-body">
+              <!-- rows injected by JS -->
+            </tbody>
+          </table>
+        </div>
+        <div class="add-item-row">
+          <button class="btn btn-secondary" id="btn-add-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Item
+          </button>
+        </div>
+
+        <div class="totals">
+          <div class="total-row">
+            <span class="total-label">Subtotal</span>
+            <span class="total-value" id="subtotal">$0.00</span>
+          </div>
+          <div class="total-row" id="discount-row" style="display:none">
+            <span class="total-label">Discount</span>
+            <span class="total-value" id="discount-amount">-$0.00</span>
+          </div>
+          <div class="total-row" id="tax-row" style="display:none">
+            <span class="total-label">Tax</span>
+            <span class="total-value" id="tax-amount">$0.00</span>
+          </div>
+          <div class="total-row grand">
+            <span class="total-label">Total</span>
+            <span class="total-value value" id="grand-total">$0.00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTES -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">④</span>
+          Notes & Terms
+        </div>
+        <div class="form-group">
+          <label>Notes / Payment Terms</label>
+          <textarea id="notes" placeholder="Payment is due within 30 days. Thank you for your business!">Payment is due within 30 days of the invoice date. Please make checks payable to Cartel Studios LLC or transfer to the account details provided. Thank you for your business!</textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: SIDEBAR -->
+    <aside class="sidebar">
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">⚡</span>
+          Actions
+        </div>
+        <div class="preview-actions">
+          <button class="btn btn-primary" id="btn-download-side">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download PDF
+          </button>
+          <button class="btn btn-secondary" id="btn-print">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            Print Invoice
+          </button>
+          <button class="btn btn-secondary" id="btn-preview">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            Live Preview
+          </button>
+          <button class="btn btn-ghost" id="btn-load">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Load Draft
+          </button>
+        </div>
+        <p class="hint">
+          All data stays in your browser. Nothing is uploaded to any server. Your invoices are private.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">📊</span>
+          Summary
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.6rem;">
+          <div style="display:flex;justify-content:space-between;font-size:0.9rem;">
+            <span style="color:var(--text-muted)">Items</span>
+            <span id="summary-items" style="font-weight:600">0</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.9rem;">
+            <span style="color:var(--text-muted)">Status</span>
+            <span class="status-badge" id="summary-status">Draft</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.9rem;margin-top:0.3rem;padding-top:0.6rem;border-top:1px solid var(--border)">
+            <span style="color:var(--text-muted)">Grand Total</span>
+            <span id="summary-total" style="font-weight:700;color:var(--accent);font-size:1.1rem">$0.00</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="site-footer">
+    <strong>CARTEL INVOICE MAKER</strong> — Professional invoices in seconds. Built for freelancers, agencies & businesses.
+  </footer>
+
+  <!-- Hidden printable invoice -->
+  <div id="invoice-preview"></div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ===== STATE =====
+    let items = [
+      { id: 1, description: 'Website Design & Development', qty: 1, rate: 2500 },
+      { id: 2, description: 'Brand Identity Package', qty: 1, rate: 800 }
+    ];
+    let nextId = 3;
+
+    const currencySymbols = {
+      USD: '$', EUR: '€', GBP: '£', CAD: 'C$', AUD: 'A$', INR: '₹', NGN: '₦', ZAR: 'R',
+      RWF: 'FRw', UGX: 'USh'
+    };
+
+    // ===== DOM =====
+    const itemsBody = document.getElementById('items-body');
+    const toastEl = document.getElementById('toast');
+
+    // ===== INIT =====
+    function init() {
+      // Set default dates
+      const today = new Date();
+      const due = new Date();
+      due.setDate(due.getDate() + 30);
+      document.getElementById('inv-date').value = formatDateInput(today);
+      document.getElementById('inv-due').value = formatDateInput(due);
+
+      renderItems();
+      calculate();
+      bindEvents();
+      tryLoadDraft();
+    }
+
+    function formatDateInput(d) {
+      return d.toISOString().slice(0, 10);
+    }
+
+    function formatDateDisplay(str) {
+      if (!str) return '—';
+      const d = new Date(str + 'T00:00:00');
+      return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+
+    function getCurrency() {
+      return document.getElementById('currency').value;
+    }
+
+    function symbol() {
+      return currencySymbols[getCurrency()] || '$';
+    }
+
+    function money(n) {
+      return symbol() + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // ===== ITEMS =====
+    function renderItems() {
+      if (items.length === 0) {
+        itemsBody.innerHTML = `<tr><td colspan="5"><div class="empty-items">No items yet. Click “Add Item” to start.</div></td></tr>`;
+        return;
+      }
+
+      itemsBody.innerHTML = items.map(item => `
+        <tr data-id="${item.id}">
+          <td>
+            <input type="text" class="item-desc" value="${escapeHtml(item.description)}" placeholder="Item description" />
+          </td>
+          <td>
+            <input type="number" class="item-qty" value="${item.qty}" min="0" step="0.01" />
+          </td>
+          <td>
+            <input type="number" class="item-rate" value="${item.rate}" min="0" step="0.01" />
+          </td>
+          <td class="amount-cell">${money(item.qty * item.rate)}</td>
+          <td style="text-align:center">
+            <button class="btn-remove" title="Remove item" data-id="${item.id}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+
+      // Bind inputs
+      itemsBody.querySelectorAll('.item-desc').forEach(el => {
+        el.addEventListener('input', e => {
+          const id = +e.target.closest('tr').dataset.id;
+          const item = items.find(i => i.id === id);
+          if (item) item.description = e.target.value;
+        });
+      });
+      itemsBody.querySelectorAll('.item-qty').forEach(el => {
+        el.addEventListener('input', e => {
+          const id = +e.target.closest('tr').dataset.id;
+          const item = items.find(i => i.id === id);
+          if (item) {
+            item.qty = parseFloat(e.target.value) || 0;
+            calculate();
+            renderItems(); // re-render to update amount cell
+          }
+        });
+      });
+      itemsBody.querySelectorAll('.item-rate').forEach(el => {
+        el.addEventListener('input', e => {
+          const id = +e.target.closest('tr').dataset.id;
+          const item = items.find(i => i.id === id);
+          if (item) {
+            item.rate = parseFloat(e.target.value) || 0;
+            calculate();
+            renderItems();
+          }
+        });
+      });
+      itemsBody.querySelectorAll('.btn-remove').forEach(el => {
+        el.addEventListener('click', e => {
+          const id = +e.currentTarget.dataset.id;
+          items = items.filter(i => i.id !== id);
+          renderItems();
+          calculate();
+          showToast('Item removed');
+        });
+      });
+    }
+
+    function addItem() {
+      items.push({ id: nextId++, description: '', qty: 1, rate: 0 });
+      renderItems();
+      calculate();
+      // Focus the new description field
+      const last = itemsBody.querySelector('tr:last-child .item-desc');
+      if (last) last.focus();
+    }
+
+    // ===== CALCULATE =====
+    function calculate() {
+      const subtotal = items.reduce((sum, i) => sum + (i.qty * i.rate), 0);
+      const taxRate = parseFloat(document.getElementById('tax-rate').value) || 0;
+      const discountRate = parseFloat(document.getElementById('discount').value) || 0;
+
+      const discountAmt = subtotal * (discountRate / 100);
+      const afterDiscount = subtotal - discountAmt;
+      const taxAmt = afterDiscount * (taxRate / 100);
+      const total = afterDiscount + taxAmt;
+
+      document.getElementById('subtotal').textContent = money(subtotal);
+      document.getElementById('grand-total').textContent = money(total);
+      document.getElementById('summary-total').textContent = money(total);
+      document.getElementById('summary-items').textContent = items.length;
+
+      const discRow = document.getElementById('discount-row');
+      const taxRow = document.getElementById('tax-row');
+
+      if (discountRate > 0) {
+        discRow.style.display = 'flex';
+        document.getElementById('discount-amount').textContent = '-' + money(discountAmt);
+      } else {
+        discRow.style.display = 'none';
+      }
+
+      if (taxRate > 0) {
+        taxRow.style.display = 'flex';
+        document.getElementById('tax-amount').textContent = money(taxAmt);
+      } else {
+        taxRow.style.display = 'none';
+      }
+
+      return { subtotal, discountAmt, taxAmt, total };
+    }
+
+    // ===== BUILD PREVIEW HTML =====
+    function buildPreviewHTML() {
+      const fromName = document.getElementById('from-name').value || 'Your Business';
+      const fromEmail = document.getElementById('from-email').value;
+      const fromAddress = document.getElementById('from-address').value;
+      const toName = document.getElementById('to-name').value || 'Client';
+      const toEmail = document.getElementById('to-email').value;
+      const toAddress = document.getElementById('to-address').value;
+      const invNum = document.getElementById('inv-number').value || 'INV-001';
+      const invDate = formatDateDisplay(document.getElementById('inv-date').value);
+      const invDue = formatDateDisplay(document.getElementById('inv-due').value);
+      const notes = document.getElementById('notes').value;
+      const { subtotal, discountAmt, taxAmt, total } = calculate();
+      const taxRate = parseFloat(document.getElementById('tax-rate').value) || 0;
+      const discountRate = parseFloat(document.getElementById('discount').value) || 0;
+
+      const rows = items.map(i => `
+        <tr>
+          <td>${escapeHtml(i.description) || '—'}</td>
+          <td class="center">${i.qty}</td>
+          <td class="right">${money(i.rate)}</td>
+          <td class="right">${money(i.qty * i.rate)}</td>
+        </tr>
+      `).join('');
+
+      return `
+        <div class="inv-header">
+          <div>
+            <div class="inv-brand">CARTEL <span>INVOICE</span></div>
+            <div style="font-size:13px;color:#71717a;margin-top:4px">Professional Invoice</div>
+          </div>
+          <div class="inv-meta">
+            <strong>${escapeHtml(invNum)}</strong>
+            <div>Issue Date: ${invDate}</div>
+            <div>Due Date: ${invDue}</div>
+          </div>
+        </div>
+
+        <div class="inv-parties">
+          <div class="inv-party">
+            <h4>From</h4>
+            <p class="name">${escapeHtml(fromName)}</p>
+            <p>${escapeHtml(fromEmail)}</p>
+            <p style="white-space:pre-line">${escapeHtml(fromAddress)}</p>
+          </div>
+          <div class="inv-party">
+            <h4>Bill To</h4>
+            <p class="name">${escapeHtml(toName)}</p>
+            <p>${escapeHtml(toEmail)}</p>
+            <p style="white-space:pre-line">${escapeHtml(toAddress)}</p>
+          </div>
+        </div>
+
+        <table class="inv-table">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th class="center">Qty</th>
+              <th class="right">Rate</th>
+              <th class="right">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows || '<tr><td colspan="4" style="text-align:center;color:#a1a1aa">No items</td></tr>'}
+          </tbody>
+        </table>
+
+        <div class="inv-totals">
+          <div class="inv-totals-inner">
+            <div class="inv-total-row">
+              <span>Subtotal</span>
+              <span>${money(subtotal)}</span>
+            </div>
+            ${discountRate > 0 ? `<div class="inv-total-row"><span>Discount (${discountRate}%)</span><span>-${money(discountAmt)}</span></div>` : ''}
+            ${taxRate > 0 ? `<div class="inv-total-row"><span>Tax (${taxRate}%)</span><span>${money(taxAmt)}</span></div>` : ''}
+            <div class="inv-total-row grand">
+              <span>Total</span>
+              <span>${money(total)}</span>
+            </div>
+          </div>
+        </div>
+
+        ${notes ? `<div class="inv-notes"><strong>Notes & Terms</strong>${escapeHtml(notes)}</div>` : ''}
+
+        <div class="inv-footer">
+          Generated with CARTEL INVOICE MAKER • Thank you for your business
+        </div>
+      `;
+    }
+
+    // ===== DOWNLOAD PDF =====
+    async function downloadPDF() {
+      const preview = document.getElementById('invoice-preview');
+      preview.innerHTML = buildPreviewHTML();
+      preview.classList.add('show');
+
+      const invNum = document.getElementById('inv-number').value || 'invoice';
+      const opt = {
+        margin: 0,
+        filename: `${invNum}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+
+      try {
+        showToast('Generating PDF…');
+        await html2pdf().set(opt).from(preview).save();
+        showToast('PDF downloaded successfully', 'success');
+      } catch (err) {
+        console.error(err);
+        showToast('Failed to generate PDF', 'error');
+      } finally {
+        preview.classList.remove('show');
+      }
+    }
+
+    // ===== PRINT =====
+    function printInvoice() {
+      const preview = document.getElementById('invoice-preview');
+      preview.innerHTML = buildPreviewHTML();
+      preview.classList.add('show');
+
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Invoice</title>
+          <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+          <style>
+            body { margin: 0; padding: 0; background: white; }
+            ${document.querySelector('style').textContent}
+            #invoice-preview { display: block !important; position: static !important; left: auto !important; width: 100% !important; max-width: 800px; margin: 0 auto; }
+          </style>
+        </head>
+        <body>${preview.outerHTML}</body>
+        </html>
+      `);
+      printWindow.document.close();
+      setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+        preview.classList.remove('show');
+      }, 400);
+    }
+
+    // ===== PREVIEW (new tab) =====
+    function livePreview() {
+      const preview = document.getElementById('invoice-preview');
+      preview.innerHTML = buildPreviewHTML();
+      const w = window.open('', '_blank');
+      w.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Invoice Preview</title>
+          <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+          <style>
+            body { margin: 0; padding: 24px; background: #f4f4f5; }
+            ${document.querySelector('style').textContent}
+            #invoice-preview { display: block !important; position: static !important; left: auto !important; margin: 0 auto; box-shadow: 0 4px 24px rgba(0,0,0,0.12); }
+          </style>
+        </head>
+        <body>${preview.outerHTML}</body>
+        </html>
+      `);
+      w.document.close();
+      preview.classList.remove('show');
+    }
+
+    // ===== SAVE / LOAD =====
+    function saveDraft() {
+      const data = {
+        fromName: document.getElementById('from-name').value,
+        fromEmail: document.getElementById('from-email').value,
+        fromAddress: document.getElementById('from-address').value,
+        toName: document.getElementById('to-name').value,
+        toEmail: document.getElementById('to-email').value,
+        toAddress: document.getElementById('to-address').value,
+        invNumber: document.getElementById('inv-number').value,
+        currency: document.getElementById('currency').value,
+        invDate: document.getElementById('inv-date').value,
+        invDue: document.getElementById('inv-due').value,
+        taxRate: document.getElementById('tax-rate').value,
+        discount: document.getElementById('discount').value,
+        notes: document.getElementById('notes').value,
+        items,
+        nextId
+      };
+      localStorage.setItem('cartel-invoice-draft', JSON.stringify(data));
+      showToast('Draft saved locally', 'success');
+    }
+
+    function loadDraft() {
+      const raw = localStorage.getItem('cartel-invoice-draft');
+      if (!raw) {
+        showToast('No saved draft found', 'error');
+        return;
+      }
+      try {
+        const data = JSON.parse(raw);
+        document.getElementById('from-name').value = data.fromName || '';
+        document.getElementById('from-email').value = data.fromEmail || '';
+        document.getElementById('from-address').value = data.fromAddress || '';
+        document.getElementById('to-name').value = data.toName || '';
+        document.getElementById('to-email').value = data.toEmail || '';
+        document.getElementById('to-address').value = data.toAddress || '';
+        document.getElementById('inv-number').value = data.invNumber || '';
+        document.getElementById('currency').value = data.currency || 'USD';
+        document.getElementById('inv-date').value = data.invDate || '';
+        document.getElementById('inv-due').value = data.invDue || '';
+        document.getElementById('tax-rate').value = data.taxRate || 0;
+        document.getElementById('discount').value = data.discount || 0;
+        document.getElementById('notes').value = data.notes || '';
+        items = data.items || [];
+        nextId = data.nextId || items.length + 1;
+        renderItems();
+        calculate();
+        showToast('Draft loaded', 'success');
+      } catch (e) {
+        showToast('Failed to load draft', 'error');
+      }
+    }
+
+    function tryLoadDraft() {
+      // Silent load on start if exists
+      if (localStorage.getItem('cartel-invoice-draft')) {
+        // Optional: auto-load. We'll leave it manual for now.
+      }
+    }
+
+    function resetAll() {
+      if (!confirm('Reset all fields and clear line items?')) return;
+      document.getElementById('from-name').value = 'Cartel Studios LLC';
+      document.getElementById('from-email').value = 'billing@cartel.com';
+      document.getElementById('from-address').value = '123 Market Street, Suite 400\nSan Francisco, CA 94103';
+      document.getElementById('to-name').value = '';
+      document.getElementById('to-email').value = '';
+      document.getElementById('to-address').value = '';
+      document.getElementById('inv-number').value = 'INV-2026-001';
+      document.getElementById('currency').value = 'USD';
+      document.getElementById('tax-rate').value = 0;
+      document.getElementById('discount').value = 0;
+      document.getElementById('notes').value = 'Payment is due within 30 days of the invoice date. Please make checks payable to Cartel Studios LLC or transfer to the account details provided. Thank you for your business!';
+      const today = new Date();
+      const due = new Date();
+      due.setDate(due.getDate() + 30);
+      document.getElementById('inv-date').value = formatDateInput(today);
+      document.getElementById('inv-due').value = formatDateInput(due);
+      items = [
+        { id: 1, description: 'Website Design & Development', qty: 1, rate: 2500 },
+        { id: 2, description: 'Brand Identity Package', qty: 1, rate: 800 }
+      ];
+      nextId = 3;
+      renderItems();
+      calculate();
+      showToast('Form reset');
+    }
+
+    // ===== HELPERS =====
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function showToast(msg, type = '') {
+      toastEl.textContent = msg;
+      toastEl.className = 'toast show' + (type ? ' ' + type : '');
+      clearTimeout(toastEl._timer);
+      toastEl._timer = setTimeout(() => {
+        toastEl.classList.remove('show');
+      }, 2800);
+    }
+
+    // ===== EVENTS =====
+    function bindEvents() {
+      document.getElementById('btn-add-item').addEventListener('click', addItem);
+      document.getElementById('btn-download').addEventListener('click', downloadPDF);
+      document.getElementById('btn-download-side').addEventListener('click', downloadPDF);
+      document.getElementById('btn-print').addEventListener('click', printInvoice);
+      document.getElementById('btn-preview').addEventListener('click', livePreview);
+      document.getElementById('btn-save').addEventListener('click', saveDraft);
+      document.getElementById('btn-load').addEventListener('click', loadDraft);
+      document.getElementById('btn-reset').addEventListener('click', resetAll);
+
+      ['tax-rate', 'discount', 'currency'].forEach(id => {
+        document.getElementById(id).addEventListener('input', () => {
+          calculate();
+          renderItems(); // update currency symbols in amounts
+        });
+        document.getElementById(id).addEventListener('change', () => {
+          calculate();
+          renderItems();
+        });
+      });
+    }
+
+    // Boot
+    init();
+  </script>
+</body>
+</html>
